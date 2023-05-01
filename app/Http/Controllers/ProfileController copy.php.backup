@@ -1,0 +1,87 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Profile;
+use Illuminate\Http\Request;
+
+class ProfileController extends Controller
+{
+
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'name' => 'required',
+            'profile_image' => 'required',
+            'summary' => 'required',
+            'expertise' => 'required',
+            'email' => 'required',
+            'birthday' => 'required',
+            'contact_number' => 'required'
+        ]);
+
+        Profile::create($request->post());
+
+        return redirect()->route('profiles.index')->with('success','Profile has been created successfully.');
+    }
+
+    public function show(Profile $profile)
+    {
+        return view('profiles.show',compact('profile'));
+    }
+
+    public function edit(Profile $profile)
+    {
+        return view('profiles.edit',compact('profile'));
+    }
+
+    // public function update(Request $request, Profile $profile)
+    // {
+    //     $request->validate([
+    //         'name' => 'required',
+    //         'profile_image' => 'required',
+    //         'summary' => 'required',
+    //         'expertise' => 'required',
+    //         'email' => 'required',
+    //         'birthday' => 'required',
+    //         'contact_number' => 'required'
+    //     ]);
+
+    //     $profile->fill($request->post())->save();
+
+    //     return redirect()->route('profiles.index')->with('success','Profile Has Been updated successfully');
+    // }
+
+    //Tak terpakai
+    public function update(Request $request)
+    {
+        $profile = Profile::firstOrFail();
+
+        $profile->name = $request->input('name');
+        $profile->profile_image = $request->input('profile_image');
+        $profile->summary = $request->input('summary');
+        $profile->expertise = $request->input('expertise');
+        $profile->email = $request->input('email');
+        $profile->birthday = $request->input('birthday');
+        $profile->contact_number = $request->input('contact_number');
+
+        $profile->save();
+
+        return redirect()->back()->with('success', 'Profile updated successfully');
+    }
+
+    public function destroy(Profile $profile)
+    {
+        $profile->delete();
+        return redirect()->route('profiles.index')->with('success','Profile has been deleted successfully');
+    }
+
+    public function index() {
+        $profiles = Profile::orderBy('id','asc')->paginate(5);
+        return view('profiles.index', compact('profiles'));
+    }
+    public function create() {
+        return view('profiles.create');
+    }
+}
